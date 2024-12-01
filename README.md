@@ -26,6 +26,9 @@ If you have found this, don't contribute to it. Reach out, if you can.
   - We are going to be operating on a perfect sphere of an earth for now
 
 ## TODOs 
+- Build GeoJson for two points
+- print the GeoJson for the two points
+- check distance and use correct calculation
 - Add validation 
 - Add error handling 
 - Add Tests
