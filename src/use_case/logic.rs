@@ -1,34 +1,44 @@
-use std::f64::consts::PI;
+use crate::helpers::math::{deg_to_rad, rad_to_deg};
+use crate::helpers::format::{return_dms_from_lat_long};
 
-
-/// These helpers should likely be in their own are of the repo
-/// Function to convert degrees to radians
-fn deg_to_rad(degrees: f64) -> f64 {
-    degrees * PI / 180.0
-}
-
-/// Function to convert radians to degrees
-fn rad_to_deg(radians: f64) -> f64 {
-    radians * 180.0 / PI
-}
-
-fn decimal_to_dms(decimal: f64) -> (i32, i32, f64) {
-    let degrees = decimal.trunc() as i32; // Integer part
-    let minutes_decimal = (decimal.abs() - degrees.abs() as f64) * 60.0;
-    let minutes = minutes_decimal.trunc() as i32; // Integer part of minutes
-    let seconds = (minutes_decimal - minutes as f64) * 60.0; // Remainder as seconds
-    (degrees, minutes, seconds)
-}
-
-pub fn logic_flow_one(
+fn calculate_distance_short(
     origin_lat: f64,
     origin_long: f64,
     distance: f64,
     unit: &str,
-    bearing: f64,) {
-    // for now, we are ignoring the unit type and are only supporting meters
-    // This needs to take in the distance and determine which measuring method to use.
-    // this version does not need to be used for this short of a distance
+    bearing: f64) -> (f64, f64) {
+    // TODO - will need to convert the distance to meters before calling this function
+    println!("Using Euclidean distance calculation");
+    // Convert degrees to radians
+    let lat1_rad = deg_to_rad(origin_lat);
+
+    // Calculate x and y displacements
+    let delta_x = distance * bearing.to_radians().cos();
+    let delta_y = distance * bearing.to_radians().sin();
+
+    // Adjust for latitude (meters per degree)
+    let meters_per_degree_lat = 111_132.954
+        - 559.822 * (2.0 * lat1_rad).cos()
+        + 1.175 * (4.0 * lat1_rad).cos();
+
+    let meters_per_degree_lon = 111_412.84 * lat1_rad.cos()
+        - 93.5 * (3.0 * lat1_rad).cos()
+        + 0.118 * (5.0 * lat1_rad).cos();
+
+    // Convert back to degrees
+    let delta_lat_deg = delta_y / meters_per_degree_lat;
+    let delta_lon_deg = delta_x / meters_per_degree_lon;
+
+    (origin_lat + delta_lat_deg, origin_long + delta_lon_deg)
+}
+
+fn calculate_distance_long(
+    origin_lat: f64,
+    origin_long: f64,
+    distance: f64,
+    unit: &str,
+    bearing: f64) -> (f64, f64) {
+    println!("Using Haversine formula combined with spherical trigonometry for distance calculation");
     const EARTH_RADIUS: f64 = 6371000.0; // Earth's radius in meters
 
     // Convert input degrees to radians
@@ -51,37 +61,34 @@ pub fn logic_flow_one(
     let lat2 = rad_to_deg(lat2_rad);
     let lon2 = rad_to_deg(lon2_rad);
 
-    println!("Destination Latitude: {:.6}", lat2);
-    println!("Destination Longitude: {:.6}", lon2);
+    (lat2, lon2)
+}
 
-    println!("combo: {:.6}, {:.6}", lat2, lon2);
+pub fn logic_flow_one(
+    origin_lat: f64,
+    origin_long: f64,
+    distance: f64,
+    unit: &str,
+    bearing: f64,) {
+    println!("Origin (Decimal): {:.6}, {:.6}", origin_long, origin_lat);
+    // TODO
+    // do all the validation here
 
-    let (lat_deg, lat_min, lat_sec) = decimal_to_dms(lat2);
-    let (lon_deg, lon_min, lon_sec) = decimal_to_dms(lon2);
+    // Check the distance and the unit.
 
-    let target_lat_degrees = lat_deg.abs();
-    let target_lat_min = lat_min;
-    let target_lat_sec = lat_sec;
-    let target_lat_loc = if lat2 >= 0.0 {"N"} else {"S"};
-    let formatted_lat = format!(
-        "{}°{}'{:.1}\"{}",
-        target_lat_degrees,
-        target_lat_min,
-        target_lat_sec,
-        target_lat_loc
-    );
+    // If this is under 3 miles, we are going to use XXX version of distance calculation
+    let (target_lat, target_lon) = calculate_distance_short(origin_lat, origin_long, distance, unit, bearing);
+    // Handling printing here for now
+    println!("Target (Decimal): {:.6}, {:.6}", target_lon, target_lat);
 
-    let target_lon_degrees = lon_deg.abs();
-    let target_lon_min = lon_min;
-    let target_lon_sec = lon_sec;
-    let target_lon_loc = if lon2 >= 0.0 {"E"} else {"W"};
-    let formatted_lon = format!(
-        "{}°{}'{:.1}\"{}",
-        target_lon_degrees,
-        target_lon_min,
-        target_lon_sec,
-        target_lon_loc
-    );
 
-    println!("Formatted target location: {} {}", formatted_lat, formatted_lon);
+    // If it is over 3 miles, we are going to use YYY version of distance calculation.
+    //      We are currently using YYY version in our calculations.
+    let (target_lat_long, target_lon_long) = calculate_distance_long(origin_lat, origin_long, distance, unit, bearing);
+    println!("Target (Decimal): {:.6}, {:.6}", target_lon_long, target_lat_long);
+
+
+    // This can be removed, just used as a POC for the layout
+    let fat = return_dms_from_lat_long(target_lat, target_lon);
+    println!("{}", fat);
 }

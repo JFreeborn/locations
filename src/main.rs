@@ -1,4 +1,5 @@
 mod use_case;
+mod helpers;
 
 fn main() {
     // This is going to act as an Input from external data for now.
@@ -16,13 +17,9 @@ fn start_flow_one(){
     // Starting lat/long = 34°53'44.9"N 70°54'48.7"E
     /// right now this does not take in the dms, it takes in the decimal variant.
     /// TODO - update to take in either dms or decimal.
-    // starting lat
     let origin_lat = 34.895808;
-    // starting long
     let origin_long = 70.913514;
-    // distance of the new point from origin
     let distance = 100.0;
-    // unit of distance. for now only m = meters is supported
     let unit = "m";
     // The degrees off 0 (north) for the new point
     let bearing = 45.0;
@@ -35,3 +32,8 @@ fn start_flow_one(){
         bearing
     );
 }
+
+// Take in a single lat/long point
+// Take in a distance
+// Take in a distance unit
+// Return a bounding box around the point

@@ -16,3 +16,16 @@ If you have found this, don't contribute to it. Reach out, if you can.
   - Take in a single lat lon pont.
   - take in a distance
   - create a bounding box around this point
+
+## Notes
+- Use this website to see about the GeoJson points on [This Site](https://geojson.io/#map=2/0/20)
+- When the distance being calculated is 
+  - less than 3 miles the [Euclidean](https://www.geeksforgeeks.org/euclidean-distance/) distance formula will be used
+  - greater than 3 miles the [Haversine Formula](https://en.wikipedia.org/wiki/Haversine_formula) is used (Haversine formula combined with spherical trigonometry)
+- for great distance Vincenty’s formulae or geodesic calculations will be explored but are not used for now. 
+  - We are going to be operating on a perfect sphere of an earth for now
+
+## TODOs 
+- Add validation 
+- Add error handling 
+- Add Tests
