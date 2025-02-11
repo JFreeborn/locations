@@ -64,6 +64,10 @@ fn calculate_distance_long(
     (lat2, lon2)
 }
 
+fn use_short_distance(distance: f64, unit: &str ) -> (bool) {
+    false
+}
+
 pub fn logic_flow_one(
     origin_lat: f64,
     origin_long: f64,
@@ -71,6 +75,15 @@ pub fn logic_flow_one(
     unit: &str,
     bearing: f64,
 ) -> (f64, f64, f64, f64, String) {
+
+    // TODO - insert a validator here for all the incoming inputs
+
+
+    let use_short_formula = use_short_distance();
+
+    if (use_short_formula){
+        println!("SHort");
+    }
 
     // leaving in some debugging stuff to get my output right
     println!("Origin (Decimal): {:.6}, {:.6}", origin_long, origin_lat);

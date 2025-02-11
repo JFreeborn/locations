@@ -3,7 +3,8 @@ pub mod api {
     use actix_web::{web, get, Responder, HttpResponse};
     use serde::Deserialize;
     use serde_json::json;
-    use crate::use_case::logic::logic_flow_one;
+    use crate::use_case::flow_one;
+
 
     #[derive(Deserialize)]
     pub struct FlowRequest {
@@ -27,7 +28,7 @@ pub mod api {
         }
 
         let (target_lat_short, target_lon_short, target_lat_long, target_lon_long, formatted_dms) =
-            logic_flow_one(
+             flow_one(
                 query.origin_lat,
                 query.origin_long,
                 query.distance,
@@ -45,6 +46,9 @@ pub mod api {
     }
 
     pub fn scoped_config(cfg: &mut web::ServiceConfig) {
-        cfg.service(first_endpoint).service(test_route);
+        cfg
+            .service(first_endpoint)
+            .service(test_route)
+        ;
     }
 }
