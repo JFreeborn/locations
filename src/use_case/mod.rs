@@ -6,11 +6,11 @@ pub fn flow_one(
     distance: f64,
     unit: &str,
     bearing: f64,
-    ) {
+    ) -> (f64, f64, f64, f64, String) {
     logic::logic_flow_one(
         origin_lat,
         origin_long,
         distance,
         unit,
-        bearing);
+        bearing)
 }

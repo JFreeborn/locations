@@ -69,26 +69,27 @@ pub fn logic_flow_one(
     origin_long: f64,
     distance: f64,
     unit: &str,
-    bearing: f64,) {
+    bearing: f64,
+) -> (f64, f64, f64, f64, String) {
+
+    // leaving in some debugging stuff to get my output right
     println!("Origin (Decimal): {:.6}, {:.6}", origin_long, origin_lat);
-    // TODO
-    // do all the validation here
 
-    // Check the distance and the unit.
+    // Calculate short and long distance
+    let (target_lat_short, target_lon_short) = calculate_distance_short(origin_lat, origin_long, distance, unit, bearing);
+    println!("Short Distance response");
+    println!("Target (Decimal): {:.6}, {:.6}", target_lon_short, target_lat_short);
 
-    // If this is under 3 miles, we are going to use XXX version of distance calculation
-    let (target_lat, target_lon) = calculate_distance_short(origin_lat, origin_long, distance, unit, bearing);
-    // Handling printing here for now
-    println!("Target (Decimal): {:.6}, {:.6}", target_lon, target_lat);
-
-
-    // If it is over 3 miles, we are going to use YYY version of distance calculation.
-    //      We are currently using YYY version in our calculations.
     let (target_lat_long, target_lon_long) = calculate_distance_long(origin_lat, origin_long, distance, unit, bearing);
+    println!("Long Distance response");
     println!("Target (Decimal): {:.6}, {:.6}", target_lon_long, target_lat_long);
 
 
-    // This can be removed, just used as a POC for the layout
-    let fat = return_dms_from_lat_long(target_lat, target_lon);
-    println!("{}", fat);
+    // Convert to DMS format
+    let formatted_dms = return_dms_from_lat_long(target_lat_short, target_lon_short);
+    println!("Formatted");
+    println!("{}", formatted_dms);
+
+    // Return values
+    (target_lat_short, target_lon_short, target_lat_long, target_lon_long, formatted_dms)
 }
