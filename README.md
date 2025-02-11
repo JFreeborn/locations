@@ -32,3 +32,35 @@ If you have found this, don't contribute to it. Reach out, if you can.
 - Add validation 
 - Add error handling 
 - Add Tests
+- Fix project structure
+```aiignore
+/my_rust_api
+│── /src
+│   ├── /api             # Presentation layer (Actix Web handlers, routes)
+│   │   ├── mod.rs
+│   │   ├── handlers.rs  # HTTP handlers (Controllers in C#)
+│   │   ├── request.rs   # Request DTOs
+│   │   ├── response.rs  # Response DTOs
+│   │   ├── routes.rs    # Route definitions
+│   │
+│   ├── /application     # Application layer (Use Cases)
+│   │   ├── mod.rs
+│   │   ├── services.rs  # Business logic
+│   │
+│   ├── /domain          # Domain layer (Core Business Models)
+│   │   ├── mod.rs
+│   │   ├── models.rs    # Entities (e.g., User, Order)
+│   │   ├── errors.rs    # Domain-specific errors
+│   │
+│   ├── /infrastructure  # Infra (Persistence, External APIs, Logging, etc.)
+│   │   ├── mod.rs
+│   │   ├── db.rs        # Database connections & repositories
+│   │   ├── logging.rs   # Logging setup
+│   │
+│   ├── main.rs          # Entry point (bootstraps API & dependencies)
+│   ├── config.rs        # Configuration setup
+│   ├── lib.rs           # Re-exports modules for easy access
+│
+│── Cargo.toml           # Rust package config
+
+```
