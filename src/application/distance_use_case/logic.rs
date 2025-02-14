@@ -1,12 +1,15 @@
 use super::helpers::math::{deg_to_rad, rad_to_deg};
 use super::helpers::format::{return_dms_from_lat_long};
+use crate::api::distance::responses::PointToPointDistanceResponse;
+use std::io::{Error, ErrorKind};
 
 fn calculate_distance_short(
     origin_lat: f64,
     origin_long: f64,
     distance: f64,
     unit: &str,
-    bearing: f64) -> (f64, f64) {
+    bearing: f64
+) -> (f64, f64) {
     // TODO - will need to convert the distance_use_case to meters before calling this function
     println!("Using Euclidean distance_use_case calculation");
     // Convert degrees to radians
@@ -37,7 +40,8 @@ fn calculate_distance_long(
     origin_long: f64,
     distance: f64,
     unit: &str,
-    bearing: f64) -> (f64, f64) {
+    bearing: f64
+) -> (f64, f64) {
     println!("Using Haversine formula combined with spherical trigonometry for distance_use_case calculation");
     const EARTH_RADIUS: f64 = 6371000.0; // Earth's radius in meters
 
@@ -64,8 +68,51 @@ fn calculate_distance_long(
     (lat2, lon2)
 }
 
-fn use_short_distance(distance: f64, unit: &str ) -> (bool) {
-    false
+fn validate_inputs(
+    origin_lat: f64,
+    origin_long: f64,
+    distance: f64,
+    unit: &str,
+    bearing: f64
+) -> Result<(), Error> {
+    if origin_lat < -90.0 || origin_lat > 90.0 {
+        return Err(Error::new(ErrorKind::InvalidInput, "Latitude must be between -90 and 90 degrees"));
+    }
+
+    if origin_long < -180.0 || origin_long > 180.0 {
+        return Err(Error::new(ErrorKind::InvalidInput, "Longitude must be between -180 and 180 degrees"));
+    }
+
+    if distance < 0.0 {
+        return Err(Error::new(ErrorKind::InvalidInput, "Distance must be non-negative"));
+    }
+
+    if bearing < 0.0 || bearing >= 360.0 {
+        return Err(Error::new(ErrorKind::InvalidInput, "Bearing must be between 0 and 360 degrees"));
+    }
+
+    let allowed_units = ["m", "km", "mi"]; // Define the supported units
+    if !allowed_units.contains(&unit) {
+        return Err(Error::new(ErrorKind::InvalidInput, "Invalid unit of measurement"));
+    }
+
+    Ok(())
+}
+
+fn use_short_distance(
+    distance: f64,
+    unit: &str
+) -> Result<bool, Error>{
+    /*
+    we accept:
+        m = meters
+        km = kilometers
+        mi = miles
+     */
+
+    
+
+    Ok(true)
 }
 
 pub fn logic_flow_one(
@@ -74,31 +121,38 @@ pub fn logic_flow_one(
     distance: f64,
     unit: &str,
     bearing: f64,
-) -> (f64, f64, f64, f64, String) {
+) -> Result<PointToPointDistanceResponse, Error> {
 
-    // TODO - insert a validator here for all the incoming inputs
-
+    validate_inputs(origin_lat, origin_long, distance, unit, bearing)?;
 
 
 
     // leaving in some debugging stuff to get my output right
-    println!("Origin (Decimal): {:.6}, {:.6}", origin_long, origin_lat);
+    //println!("Origin (Decimal): {:.6}, {:.6}", origin_long, origin_lat);
 
     // Calculate short and long distance_use_case
     let (target_lat_short, target_lon_short) = calculate_distance_short(origin_lat, origin_long, distance, unit, bearing);
-    println!("Short Distance response");
-    println!("Target (Decimal): {:.6}, {:.6}", target_lon_short, target_lat_short);
+    //println!("Short Distance response");
+    //println!("Target (Decimal): {:.6}, {:.6}", target_lon_short, target_lat_short);
 
     let (target_lat_long, target_lon_long) = calculate_distance_long(origin_lat, origin_long, distance, unit, bearing);
-    println!("Long Distance response");
-    println!("Target (Decimal): {:.6}, {:.6}", target_lon_long, target_lat_long);
+    //println!("Long Distance response");
+    //println!("Target (Decimal): {:.6}, {:.6}", target_lon_long, target_lat_long);
 
 
     // Convert to DMS format
     let formatted_dms = return_dms_from_lat_long(target_lat_short, target_lon_short);
-    println!("Formatted");
-    println!("{}", formatted_dms);
+    //println!("Formatted");
+    //println!("{}", formatted_dms);
 
     // Return values
-    (target_lat_short, target_lon_short, target_lat_long, target_lon_long, formatted_dms)
+    //(target_lat_short, target_lon_short, target_lat_long, target_lon_long, formatted_dms)
+
+    Ok(PointToPointDistanceResponse{
+        target_lat_short,
+        target_lon_short,
+        target_lat_long,
+        target_lon_long,
+        message: formatted_dms
+    })
 }

@@ -1,4 +1,5 @@
 use actix_web::{web, get, Responder, HttpResponse};
+use actix_web::web::resource;
 use super::requests::PointToPointDistanceRequest;
 use super::responses::PointToPointDistanceResponse;
 
@@ -16,18 +17,13 @@ pub async fn first_endpoint(query: web::Query<PointToPointDistanceRequest>) -> i
         return HttpResponse::BadRequest().body("Invalid numeric input");
     }
 
-    let (target_lat_short, target_lon_short, target_lat_long, target_lon_long, formatted_dms) =
-        logic::logic_flow_one(
+    match logic::logic_flow_one(
             query.origin_lat,
             query.origin_long,
             query.distance,
             &query.unit,
-            query.bearing,
-        );
-
-    let fart = PointToPointDistanceResponse{
-        message: "here is some string".into()
-    };
-
-    HttpResponse::Ok().json(fart)
+            query.bearing) {
+        Ok(success) => HttpResponse::Ok().json(success),
+        Err(err) => HttpResponse::InternalServerError().body(format!("Error {}", err))
+    }
 }
