@@ -1,4 +1,4 @@
-use crate::helpers::math::decimal_to_dms;
+use super::math::decimal_to_dms;
 
 pub fn return_dms_from_lat_long(latitude: f64, longitude: f64) -> String {
     let (lat_deg, lat_min, lat_sec) = decimal_to_dms(latitude);

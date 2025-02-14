@@ -1,11 +1,8 @@
 use actix_web::{error, web, App, HttpResponse, HttpServer};
 use actix_cors::Cors;
 
-mod use_case;
-mod helpers;
 mod api;
-
-use crate::api::api::scoped_config;
+mod application;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()>{
@@ -28,7 +25,7 @@ async fn main() -> std::io::Result<()>{
             .wrap(cors)
             .service(web::scope("/api/v1")
                 .app_data(json_config)
-                .configure(scoped_config))
+                .configure(api::routes::scoped_config))
     })
     .workers(2)
     .bind(("127.0.0.1", 8080))?

@@ -1,5 +1,5 @@
-use crate::helpers::math::{deg_to_rad, rad_to_deg};
-use crate::helpers::format::{return_dms_from_lat_long};
+use super::helpers::math::{deg_to_rad, rad_to_deg};
+use super::helpers::format::{return_dms_from_lat_long};
 
 fn calculate_distance_short(
     origin_lat: f64,
@@ -7,8 +7,8 @@ fn calculate_distance_short(
     distance: f64,
     unit: &str,
     bearing: f64) -> (f64, f64) {
-    // TODO - will need to convert the distance to meters before calling this function
-    println!("Using Euclidean distance calculation");
+    // TODO - will need to convert the distance_use_case to meters before calling this function
+    println!("Using Euclidean distance_use_case calculation");
     // Convert degrees to radians
     let lat1_rad = deg_to_rad(origin_lat);
 
@@ -38,7 +38,7 @@ fn calculate_distance_long(
     distance: f64,
     unit: &str,
     bearing: f64) -> (f64, f64) {
-    println!("Using Haversine formula combined with spherical trigonometry for distance calculation");
+    println!("Using Haversine formula combined with spherical trigonometry for distance_use_case calculation");
     const EARTH_RADIUS: f64 = 6371000.0; // Earth's radius in meters
 
     // Convert input degrees to radians
@@ -79,16 +79,12 @@ pub fn logic_flow_one(
     // TODO - insert a validator here for all the incoming inputs
 
 
-    let use_short_formula = use_short_distance();
 
-    if (use_short_formula){
-        println!("SHort");
-    }
 
     // leaving in some debugging stuff to get my output right
     println!("Origin (Decimal): {:.6}, {:.6}", origin_long, origin_lat);
 
-    // Calculate short and long distance
+    // Calculate short and long distance_use_case
     let (target_lat_short, target_lon_short) = calculate_distance_short(origin_lat, origin_long, distance, unit, bearing);
     println!("Short Distance response");
     println!("Target (Decimal): {:.6}, {:.6}", target_lon_short, target_lat_short);
