@@ -1,6 +1,6 @@
 use super::helpers::math::{deg_to_rad, rad_to_deg};
 use super::helpers::format::{return_dms_from_lat_long};
-use crate::api::distance::responses::PointToPointDistanceResponse;
+use crate::api::distance::responses::*;
 use std::io::{Error, ErrorKind};
 
 fn calculate_distance_short(
@@ -10,7 +10,6 @@ fn calculate_distance_short(
     unit: &str,
     bearing: f64
 ) -> (f64, f64) {
-    // TODO - will need to convert the distance_use_case to meters before calling this function
     println!("Using Euclidean distance_use_case calculation");
     // Convert degrees to radians
     let lat1_rad = deg_to_rad(origin_lat);
@@ -102,20 +101,42 @@ fn validate_inputs(
 fn use_short_distance(
     distance: f64,
     unit: &str
-) -> Result<bool, Error>{
-    /*
-    we accept:
-        m = meters
-        km = kilometers
-        mi = miles
-     */
-
-    
-
-    Ok(true)
+) -> bool{
+    if unit == "mi"{
+        if (distance <= 3f64){
+            return true;
+        }
+    }
+    if unit == "m"{
+        if (distance <= 4828.03){
+            return true;
+        }
+    }
+    if unit == "km"{
+        if (distance <= 4.82803){
+            return true;
+        }
+    }
+    false
 }
 
-pub fn logic_flow_one(
+fn convert_to_meters(
+    distance: f64,
+    unit: &str
+) -> f64{
+    if unit == "m"{
+        return distance;
+    }
+    if unit == "km"{
+        return distance * 1000.0;
+    }
+    if unit.trim() == "mi"{
+        return distance * 1609.344;
+    }
+    0f64
+}
+
+pub fn get_basic_distance(
     origin_lat: f64,
     origin_long: f64,
     distance: f64,
@@ -123,36 +144,96 @@ pub fn logic_flow_one(
     bearing: f64,
 ) -> Result<PointToPointDistanceResponse, Error> {
 
+    println!("{}", unit);
+
     validate_inputs(origin_lat, origin_long, distance, unit, bearing)?;
+    let use_short_distance = use_short_distance(distance, unit);
+    let distance_in_meters = convert_to_meters(distance, unit);
 
+    return if use_short_distance {
+        let (target_lat, target_long) = calculate_distance_short(origin_lat, origin_long, distance_in_meters, unit, bearing);
 
+        Ok(PointToPointDistanceResponse {
+            target_lat: (target_lat * 1000000.0).round() / 1000000.0,
+            target_long: (target_long * 1000000.0).round() / 1000000.0,
+            message: "Used short distance calculation".into()
+        })
+    } else {
+        let (target_lat, target_long) = calculate_distance_long(origin_lat, origin_long, distance_in_meters, unit, bearing);
 
-    // leaving in some debugging stuff to get my output right
-    //println!("Origin (Decimal): {:.6}, {:.6}", origin_long, origin_lat);
-
-    // Calculate short and long distance_use_case
-    let (target_lat_short, target_lon_short) = calculate_distance_short(origin_lat, origin_long, distance, unit, bearing);
-    //println!("Short Distance response");
-    //println!("Target (Decimal): {:.6}, {:.6}", target_lon_short, target_lat_short);
-
-    let (target_lat_long, target_lon_long) = calculate_distance_long(origin_lat, origin_long, distance, unit, bearing);
-    //println!("Long Distance response");
-    //println!("Target (Decimal): {:.6}, {:.6}", target_lon_long, target_lat_long);
-
+        Ok(PointToPointDistanceResponse {
+            target_lat: (target_lat * 1000000.0).round() / 1000000.0,
+            target_long: (target_long * 1000000.0).round() / 1000000.0,
+            message: "Used long distance calculation".into()
+        })
+    }
 
     // Convert to DMS format
-    let formatted_dms = return_dms_from_lat_long(target_lat_short, target_lon_short);
+    //let formatted_dms = return_dms_from_lat_long(target_lat_short, target_lon_short);
     //println!("Formatted");
     //println!("{}", formatted_dms);
+}
 
-    // Return values
-    //(target_lat_short, target_lon_short, target_lat_long, target_lon_long, formatted_dms)
+pub fn get_geo_json(
+    origin_lat: f64,
+    origin_long: f64,
+    distance: f64,
+    unit: &str,
+    bearing: f64,
+) -> Result<GeoJsonResponse, Error> {
+    validate_inputs(origin_lat, origin_long, distance, unit, bearing)?;
+    let use_short_distance = use_short_distance(distance, unit);
+    let distance_in_meters = convert_to_meters(distance, unit);
 
-    Ok(PointToPointDistanceResponse{
-        target_lat_short,
-        target_lon_short,
-        target_lat_long,
-        target_lon_long,
-        message: formatted_dms
-    })
+    return if use_short_distance {
+        let (target_lat, target_long) = calculate_distance_short(origin_lat, origin_long, distance_in_meters, unit, bearing);
+
+        let origin_feature = Struct {
+            r#type: "Feature".to_string(),
+            geometry: Geometry {
+                r#type: "Point".to_string(),
+                coordinates: vec![origin_long, origin_lat],
+            },
+            properties: Properties {}, // Add properties if needed
+        };
+
+        let target_feature = Struct {
+            r#type: "Feature".to_string(), // Standard GeoJSON Feature type
+            geometry: Geometry {
+                r#type: "Point".to_string(), // Represents a Point in GeoJSON
+                coordinates: vec![(target_long * 1000000.0).round() / 1000000.0, (target_lat * 1000000.0).round() / 1000000.0], // Longitude first in GeoJSON
+            },
+            properties: Properties {}, // Placeholder, can be expanded
+        };
+
+        Ok(GeoJsonResponse {
+            r#type: "FeatureCollection".to_string(), // Standard GeoJSON collection type
+            features: vec![origin_feature, target_feature], // Wrap the feature in a list
+        })
+    } else {
+        let (target_lat, target_long) = calculate_distance_long(origin_lat, origin_long, distance_in_meters, unit, bearing);
+
+        let origin_feature = Struct {
+            r#type: "Feature".to_string(),
+            geometry: Geometry {
+                r#type: "Point".to_string(),
+                coordinates: vec![origin_long, origin_lat],
+            },
+            properties: Properties {}, // Add properties if needed
+        };
+
+        let target_feature = Struct {
+            r#type: "Feature".to_string(), // Standard GeoJSON Feature type
+            geometry: Geometry {
+                r#type: "Point".to_string(), // Represents a Point in GeoJSON
+                coordinates: vec![(target_long * 1000000.0).round() / 1000000.0, (target_lat * 1000000.0).round() / 1000000.0], // Longitude first in GeoJSON
+            },
+            properties: Properties {}, // Placeholder, can be expanded
+        };
+
+        Ok(GeoJsonResponse {
+            r#type: "FeatureCollection".to_string(), // Standard GeoJSON collection type
+            features: vec![origin_feature, target_feature], // Wrap the feature in a list
+        })
+    }
 }
