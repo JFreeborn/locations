@@ -8,8 +8,6 @@ metadata:
   annotations:
     example.com/service-discovery: artistweb
     circleci.com/project-slug: github/example-org/artist-website
-  tags:
-    - c#
   links:
     - url: https://google.com
       title: Admin Dashboard
