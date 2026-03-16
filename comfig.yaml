@@ -1,13 +1,10 @@
 apiVersion: backstage.io/v1alpha1
 kind: Component
 metadata:
-  name: redis-reader
-  description: Used to read redis streams while running dapr locally
-  tags:
-    - redis
-    - dapr
+  name: locations
+  annotations:
+    github.com/project-slug: JFreeborn/locations
 spec:
-  type: website
-  lifecycle: production
-  owner: artist-relations-team
-  system: public-websites
+  type: other
+  lifecycle: unknown
+  owner: guests
