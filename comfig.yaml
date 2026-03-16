@@ -2,17 +2,10 @@ apiVersion: backstage.io/v1alpha1
 kind: Component
 metadata:
   name: redis-reader
-  description: Used to read redis streams while running DAPR locally
-  labels:
-    example.com/custom: custom_label_value
-  annotations:
-    example.com/service-discovery: artistweb
-    circleci.com/project-slug: github/example-org/artist-website
-  links:
-    - url: https://google.com
-      title: Admin Dashboard
-      icon: dashboard
-      type: admin-dashboard
+  description: Used to read redis streams while running dapr locally
+  tags:
+    - redis
+    - dapr
 spec:
   type: website
   lifecycle: production
