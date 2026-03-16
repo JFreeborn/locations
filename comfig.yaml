@@ -10,8 +10,6 @@ metadata:
     circleci.com/project-slug: github/example-org/artist-website
   tags:
     - c#
-    - DAPR
-    - redis
   links:
     - url: https://google.com
       title: Admin Dashboard
