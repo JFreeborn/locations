@@ -14,10 +14,10 @@ kind: Component
 metadata:
   name: launchdarklytest
   annotations:
-    launchdarkly.com/project-key: Xavier
+    launchdarkly.com/project-key: xavier
     launchdarkly.com/environment-key: stage
     launchdarkly.com/context: "{ \"kind\": \"tenant\", \"key\": \"UseStartOutboundCallForOutboundCalls\", \"name\": \"UseStartOutboundCallForOutboundCalls\" }"
 spec:
   type: service
   lifecycle: unknown
-  owner: 'group:engineering'
+  owner: guests
