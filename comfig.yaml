@@ -8,3 +8,16 @@ spec:
   type: other
   lifecycle: unknown
   owner: guests
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: launchdarklytest
+  annotations:
+    launchdarkly.com/project-key: Xavier
+    launchdarkly.com/environment-key: stage
+    launchdarkly.com/context: "{ \"kind\": \"tenant\", \"key\": \"UseStartOutboundCallForOutboundCalls\", \"name\": \"UseStartOutboundCallForOutboundCalls\" }"
+spec:
+  type: service
+  lifecycle: unknown
+  owner: 'group:engineering'
